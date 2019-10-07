@@ -7,7 +7,10 @@ This is a simple Canvas-based game that requires a solid understanding of the pr
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories.
-You can find the gif in the images folder. 
+You can find the gif in the images folder. eds_sweet_dreams_walkthrough.gif 
+
+The site is available on netlify here.
+https://peaceful-liskov-71a01b.netlify.com/ 
 
 ## Code Reviews
  
@@ -50,8 +53,10 @@ The following **additional** features are implemented:
 * [x] List anything else that you can get done to improve the page!
 
 Improvements required ...
-Complete the history of top scores section 
-Add favicon to the page 
+Complete the history of top scores section.
+Add more game functionality.
+Add levels to the game.
+
 
 
 ## Time Spent and Lessons Learned
