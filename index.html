@@ -1,10 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Best Game Ever!</title>
-  </head>
-  <body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="shortcut icon" type="image/png" href="images/hero2.png"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Mansalva|Righteous&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Turret+Road&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8">
+  <title>Ed's Sweet Dreams</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col text-align-center">
+        <h1>ED'S SWEET DREAMS</h1>
+      </div>
+    </div>
+  </div>
+  <div class="container ">
+    <div class="row">
+      <div class="col">
+        <h2>Username</h2>
+        <input id="playerName" type="text">
+        <button id="usernameButton" onclick="updateUI()">Save Your
+          Username</button>
+      </div>
+      <div class="col">
+        <h2>Current Player</h2>
+        <h3 id="playerNameDisplay"></h3>
+      </div>
+      <div class="col user-interface">
+        <h2>Start The Game</h2>
+        <button id="gameStart" onclick="startGame()">Start Game</button>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col user-interface">
+        <h2>Restart The Game</h2>
+        <button id="restartGame" onclick="restartGame()">Restart Game</button>
+      </div>
+      <div class="col user-interface">
+        <h2>Current Score</h2>
+        <h3 id="userScoreCurrent"></h3>
+      </div>
+      <div class="col user-interface">
+        <h2>Seconds Remaining</h2>
+        <h3 id="timer"></h3>
+      </div>
+      <div class="col user-interface">
+        <h2>Current High Score</h2>
+        <h3 id="highScoreCurrent"></h3>
+      </div>
+    </div>
+  </div>
+  <div class="container game">
     <script src="game.js"></script>
-  </body>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <button id="showHighScores" onclick="highScoreDisplay()"> Show High Scores</button>
+        <span id="highScoreTable"> High Score Table
+          <table id="productTable" class="table table-bordered table-condensed table-striped">
+            <thead>
+              <tr>
+                <th>Player Name</th>
+                <th>High Score</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
 </html>

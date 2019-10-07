@@ -1,0 +1,25 @@
+.col {
+    padding: 5px;
+    margin: 5px;
+    background:#6FF7F9;
+    font-family: 'Righteous', cursive;
+}
+canvas {
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 512px;
+}
+.container {
+    background-color: pink;
+}
+body {
+    background-color: pink;
+}
+h1 {
+    text-align: center;
+}
+
+

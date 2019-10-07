@@ -9,7 +9,13 @@ Here, we create and add our "canvas" to the page.
 We also load all of our images. 
 */
 
-
+let timer;
+let bgReady, heroReady, monsterReady, iceLollyReady, cupCakeReady;
+let bgImage, heroImage, monsterImage, iceLollyImage, cupCakeImage;
+const SECONDS_PER_ROUND = 30;
+let elapsedTime = 0;
+let isGameOver = false;
+let gameStarted = false;
 let canvas;
 let ctx;
 
@@ -19,61 +25,78 @@ canvas.width = 512;
 canvas.height = 480;
 document.body.appendChild(canvas);
 
-let bgReady, heroReady, monsterReady;
-let bgImage, heroImage, monsterImage;
+let heroX = Math.ceil(Math.random() * (canvas.width - 45) + 45) - 32;
+let heroY = Math.ceil(Math.random() * (canvas.width - 64) + 64) - 32;
 
-let startTime = Date.now();
-const SECONDS_PER_ROUND = 30;
-let elapsedTime = 0;
+let monsterX = Math.ceil(Math.random() * (canvas.width - 45) + 45) - 32;
+let monsterY = Math.ceil(Math.random() * (canvas.width - 64) + 64) - 32;
+
+let cupCakeX = Math.ceil(Math.random() * (canvas.width - 45) + 45) - 32;
+let cupCakeY = Math.ceil(Math.random() * (canvas.width - 64) + 64) - 32;
+
+let iceLollyX = Math.ceil(Math.random() * (canvas.width - 45) + 45) - 32;
+let iceLollyY = Math.ceil(Math.random() * (canvas.width - 64) + 64) - 32;
+
+let score = 0;
+
+function startGame() {
+  const appState = getAppState();
+  appState.currentUser =
+    document.getElementById("playerName").value || "Anonymous";
+  appState.gameStarted = true;
+  save(appState);
+
+  timer = setInterval(() => {
+    elapsedTime += 1;
+    document.getElementById("timer").innerHTML =
+      SECONDS_PER_ROUND - elapsedTime;
+  }, 1000);
+}
+
+function getAppState() {
+  return JSON.parse(localStorage.getItem('playerData')) || {
+    gameStarted: false,
+    currentScore: 0,
+    gameHistory: [],
+    currentUser: 'Anonymous',
+    currentHighScore: { score: 0, username: null },
+  }
+}
+
+function save(playerData) {
+  localStorage.setItem('playerData', JSON.stringify(playerData))
+}
 
 function loadImages() {
   bgImage = new Image();
   bgImage.onload = function () {
-    // show the background image
     bgReady = true;
   };
-  bgImage.src = "images/background.png";
+  bgImage.src = "images/background-copy.png";
   heroImage = new Image();
   heroImage.onload = function () {
-    // show the hero image
     heroReady = true;
   };
-  heroImage.src = "images/hero.png";
-
+  heroImage.src = "images/hero2.png";
   monsterImage = new Image();
   monsterImage.onload = function () {
-    // show the monster image
     monsterReady = true;
   };
-  monsterImage.src = "images/monster.png";
-}
+  monsterImage.src = "images/taco.png";
+  iceLollyImage = new Image();
+  iceLollyImage.onload = function () {
+    iceLollyReady = true;
+  };
+  iceLollyImage.src = "images/iceLolly.png";
+  cupCakeImage = new Image();
+  cupCakeImage.onload = function () {
+    cupCakeReady = true;
+  };
+  cupCakeImage.src = "images/cupCake.png";
+};
 
-/** 
- * Setting up our characters.
- * 
- * Note that heroX represents the X position of our hero.
- * heroY represents the Y position.
- * We'll need these values to know where to "draw" the hero.
- * 
- * The same applies to the monster.
- */
-
-let heroX = canvas.width / 2;
-let heroY = canvas.height / 2;
-
-let monsterX = 100;
-let monsterY = 100;
-
-/** 
- * Keyboard Listeners
- * You can safely ignore this part, for now. 
- * 
- * This is just to let JavaScript know when the user has pressed a key.
-*/
 let keysDown = {};
 function setupKeyboardListeners() {
-  // Check for keys pressed where key represents the keycode captured
-  // For now, do not worry too much about what's happening here. 
   addEventListener("keydown", function (key) {
     keysDown[key.keyCode] = true;
   }, false);
@@ -83,18 +106,7 @@ function setupKeyboardListeners() {
   }, false);
 }
 
-
-/**
- *  Update game objects - change player position based on key pressed
- *  and check to see if the monster has been caught!
- *  
- *  If you change the value of 5, the player will move at a different rate.
- */
-let update = function () {
-  // Update the time.
-  elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-
-
+function move() {  //This function controls movement
   if (38 in keysDown) { // Player is holding up key
     heroY -= 5;
   }
@@ -107,26 +119,154 @@ let update = function () {
   if (39 in keysDown) { // Player is holding right key
     heroX += 5;
   }
+}
 
-  // Check if player and monster collided. Our images
-  // are about 32 pixels big.
-  if (
-    heroX <= (monsterX + 32)
+function heroInCanvas() {
+  if (heroX <= 0) {
+    heroX = 0
+  }
+  if (heroX >= 480 + 1) {
+    heroX = 480
+  }
+  if (heroY <= 32 + 1) {
+    heroY = 32
+  }
+  if (heroY >= 448 + 1) {
+    heroY = 448
+  }
+}
+
+function randomlyPlaceMonster() {
+  monsterX = Math.ceil(Math.random() * (canvas.width - 45) + 45) - 32;
+  monsterY = Math.ceil(Math.random() * (canvas.width - 64) + 64) - 32;
+}
+function updateScores() {
+  score += 1;
+  document.getElementById("userScoreCurrent").innerHTML = score;
+
+  const appState = getAppState()
+  const hasHigherScoreThanCurrentHighScore = appState.currentHighScore.score < score
+  if (hasHigherScoreThanCurrentHighScore) {
+    appState.currentHighScore = {
+      score: score,
+      username: appState.currentUser
+    }
+    save(appState)
+  }
+}
+
+function randomlyPlaceIceLolly() {
+  iceLollyX = Math.ceil(Math.random() * (canvas.width - 45) + 45) - 32;
+  iceLollyY = Math.ceil(Math.random() * (canvas.width - 64) + 64) - 32;
+}
+function updateScores() {
+  score += 1;
+  document.getElementById("userScoreCurrent").innerHTML = score;
+
+  const appState = getAppState()
+  const hasHigherScoreThanCurrentHighScore = appState.currentHighScore.score < score
+  if (hasHigherScoreThanCurrentHighScore) {
+    appState.currentHighScore = {
+      score: score,
+      username: appState.currentUser
+    }
+    save(appState)
+  }
+}
+
+function randomlyPlaceCupCake() {
+  cupCakeX = Math.ceil(Math.random() * (canvas.width - 45) + 45) - 32;
+  cupCakeY = Math.ceil(Math.random() * (canvas.width - 64) + 64) - 32;
+}
+function updateScores() {
+  score += 1;
+  document.getElementById("userScoreCurrent").innerHTML = score;
+
+  const appState = getAppState()
+  const hasHigherScoreThanCurrentHighScore = appState.currentHighScore.score < score
+  if (hasHigherScoreThanCurrentHighScore) {
+    appState.currentHighScore = {
+      score: score,
+      username: appState.currentUser
+    }
+    save(appState)
+  }
+}
+function restartGame() {
+  window.location.reload();
+}
+
+// High Score Table Section - Still To Be Completed
+
+function highScoreDisplay() {
+  var showDiv = document.getElementById("highScoreTable");
+  if (showDiv.style.display === "none") {
+    showDiv.style.display = "block";
+  } else {
+    showDiv.style.display = "none";
+  }
+}
+
+function stopClock() {
+  clearInterval(timer);
+}
+
+function checkIfMonsterIsCaughtUpdateScorePushLocalMemory() {
+  const heroCaughtMonster = heroX <= (monsterX + 32)
     && monsterX <= (heroX + 32)
     && heroY <= (monsterY + 32)
     && monsterY <= (heroY + 32)
-  ) {
-    // Pick a new location for the monster.
-    // Note: Change this to place the monster at a new, random location.
-    monsterX = monsterX + 50;
-    monsterY = monsterY + 70;
+  if (heroCaughtMonster) {
+    randomlyPlaceMonster()
+    updateScores()
+  }
+}
+function checkIfIceLollyIsCaughtUpdateScorePushLocalMemory() {
+  const heroCaughtIceLolly = heroX <= (iceLollyX + 32)
+    && iceLollyX <= (heroX + 32)
+    && heroY <= (iceLollyY + 32)
+    && iceLollyY <= (heroY + 32)
+  if (heroCaughtIceLolly) {
+    randomlyPlaceIceLolly()
+    updateScores()
+  }
+}
+function checkIfCupCakeIsCaughtUpdateScorePushLocalMemory() {
+  const heroCaughtCupCake = heroX <= (cupCakeX + 32)
+    && cupCakeX <= (heroX + 32)
+    && heroY <= (cupCakeY + 32)
+    && cupCakeY <= (heroY + 32)
+  if (heroCaughtCupCake) {
+    randomlyPlaceCupCake()
+    updateScores()
+  }
+}
+
+function updateUI() {
+  const appState = getAppState()
+  document.getElementById('highScoreCurrent').innerHTML = appState.currentHighScore.score;
+  document.getElementById('playerNameDisplay').innerHTML = appState.currentUser;
+}
+let update = function () {
+  const isGameOver = elapsedTime >= SECONDS_PER_ROUND;
+  const appState = getAppState();
+  if (appState.gameStarted == false) return;
+
+  if (isGameOver) {
+    stopClock();
+    appState.gameStarted = false;
+    save(appState);
+  }
+  if (appState.gameStarted) {
+    move()
+    heroInCanvas()
+    checkIfMonsterIsCaughtUpdateScorePushLocalMemory()
+    checkIfCupCakeIsCaughtUpdateScorePushLocalMemory()
+    checkIfIceLollyIsCaughtUpdateScorePushLocalMemory()
+    updateUI()
   }
 };
-
-/**
- * This function, render, runs as often as possible.
- */
-var render = function () {
+const render = function () {
   if (bgReady) {
     ctx.drawImage(bgImage, 0, 0);
   }
@@ -136,28 +276,38 @@ var render = function () {
   if (monsterReady) {
     ctx.drawImage(monsterImage, monsterX, monsterY);
   }
-  ctx.fillText(`Seconds Remaining: ${SECONDS_PER_ROUND - elapsedTime}`, 20, 100);
+  if (iceLollyReady) {
+    ctx.drawImage(iceLollyImage, iceLollyX, iceLollyY);
+  }
+  if (cupCakeReady) {
+    ctx.drawImage(cupCakeImage, cupCakeX, cupCakeY);
+  }
+  ctx.font = '25px roboto'
+
+  if (elapsedTime >= SECONDS_PER_ROUND) {
+    ctx.fillText(`GAME OVER`, 20, 30);
+  } else {
+    ctx.fillText(`Seconds Remaining: ${SECONDS_PER_ROUND - elapsedTime}`, 20, 30);
+  }
+  ctx.fillText(`Your Current Score: ${score}`, 20, 60);
+  document.getElementById("userScoreCurrent").innerHTML = score;
 };
 
-/**
- * The main game loop. Most every game will have two distinct parts:
- * update (updates the state of the game, in this case our hero and monster)
- * render (based on the state of our game, draw the right things)
- */
-var main = function () {
-  update(); 
+const main = function () {
+  update();
   render();
-  // Request to do this again ASAP. This is a special method
-  // for web browsers. 
   requestAnimationFrame(main);
 };
 
 // Cross-browser support for requestAnimationFrame.
 // Safely ignore this line. It's mostly here for people with old web browsers.
-var w = window;
+const w = window;
 requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
 // Let's play this game!
 loadImages();
 setupKeyboardListeners();
 main();
+
+
+
